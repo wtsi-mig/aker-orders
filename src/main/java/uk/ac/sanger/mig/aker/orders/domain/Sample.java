@@ -2,6 +2,7 @@ package uk.ac.sanger.mig.aker.orders.domain;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 
 import javax.persistence.CollectionTable;
@@ -13,8 +14,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
@@ -36,11 +38,14 @@ public class Sample extends BaseEntity {
 	private Map<String, String> options;
 
 	@ManyToOne(optional = false)
-	@JsonIgnore
+	@JsonBackReference
 	private Order order;
 
 	@OneToMany(mappedBy = "sample")
 	private Collection<StatusHistory> statusHistory = new ArrayList<>();
+
+	@Transient
+	private Status currentStatus;
 
 	public String getBarcode() {
 		return barcode;
@@ -68,5 +73,21 @@ public class Sample extends BaseEntity {
 
 	public Collection<StatusHistory> getStatusHistory() {
 		return statusHistory;
+	}
+
+	public Status getCurrentStatus() {
+		return currentStatus;
+	}
+
+	public void setCurrentStatus(Status currentStatus) {
+		this.currentStatus = currentStatus;
+	}
+
+	public void setCurrentStatus() {
+		currentStatus = statusHistory
+				.stream()
+				.max(Comparator.comparing(BaseEntity::getUpdate))
+				.orElseThrow(IllegalStateException::new)
+				.getStatus();
 	}
 }

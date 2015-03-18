@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
@@ -27,6 +28,7 @@ public class Option extends BaseEntity {
 	private String value;
 
 	@ManyToOne(optional = false)
+	@JsonBackReference
 	private Order order;
 
 	@Transient

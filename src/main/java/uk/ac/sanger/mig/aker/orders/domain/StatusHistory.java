@@ -9,6 +9,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * @author pi1
  * @since March 2015
@@ -18,6 +20,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class StatusHistory extends BaseEntity {
 
 	@ManyToOne(optional = false)
+	@JsonIgnore
 	private Sample sample;
 
 	@ManyToOne(optional = false)

@@ -3,6 +3,7 @@ package uk.ac.sanger.mig.aker.orders.services;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
@@ -64,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
 		final Product savedProduct = productRepository.save(product);
 
 		// create order "stub" to be able to assign sample's and option's order id
-		final Order order = create(savedProject, savedProduct);
+		final Order order = create(orderRequest, savedProject, savedProduct);
 
 		// set current order for each sample, save and finally process (see JavaDoc)
 		final Collection<Sample> samples = orderRequest.getSamples();
@@ -87,18 +88,42 @@ public class OrderServiceImpl implements OrderService {
 		return order;
 	}
 
+	@Override
+	public Collection<Order> findAllByOwner(String owner) {
+		final Collection<Order> orders = repository.findByOwner(owner);
+
+		orders.forEach(o -> o.getSamples().forEach(Sample::setCurrentStatus));
+
+		return orders;
+	}
+
+	@Override
+	public Optional<Order> findByOwnerAndId(String owner, Long id) {
+		final Order order = repository.findOne(id);
+
+		if (order == null || !order.getOwner().equals(owner)) {
+			return Optional.empty();
+		}
+
+		order.getSamples().forEach(Sample::setCurrentStatus);
+
+		return Optional.of(order);
+	}
+
 	/**
 	 * Create an order in the database
 	 *
+	 * @param request original order request
 	 * @param project project of the order, must be in database
 	 * @param product product of the order, must be in database
 	 * @return saved Order instance
 	 */
-	private Order create(Project project, Product product) {
+	private Order create(Order request, Project project, Product product) {
 		Assert.notNull(project.getId(), "Project must be saved prior to creating order");
 		Assert.notNull(product.getId(), "Product must be saved prior to creating order");
 
 		final Order order = new Order();
+		order.setOwner(request.getOwner());
 		order.setProduct(product);
 		order.setProject(project);
 		order.setCreated(Calendar.getInstance().getTime());

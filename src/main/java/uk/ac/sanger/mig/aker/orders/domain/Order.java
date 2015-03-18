@@ -3,6 +3,7 @@ package uk.ac.sanger.mig.aker.orders.domain;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -14,6 +15,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 /**
  * @author pi1
@@ -25,9 +27,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Order extends BaseEntity {
 
 	@OneToMany(mappedBy = "order")
+	@JsonManagedReference
 	private Collection<Sample> samples = new ArrayList<>();
 
 	@OneToMany(mappedBy = "order")
+	@JsonManagedReference
 	private Collection<Option> options = new ArrayList<>();
 
 	@OneToOne(optional = false)
@@ -35,6 +39,9 @@ public class Order extends BaseEntity {
 
 	@OneToOne(optional = false)
 	private Project project;
+
+	@Column(nullable = false, updatable = false)
+	private String owner;
 
 	@Transient
 	private int estimateCost;
@@ -88,6 +95,14 @@ public class Order extends BaseEntity {
 
 	public void setProcessed(boolean processed) {
 		this.processed = processed;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 
 	@Override

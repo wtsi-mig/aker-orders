@@ -1,5 +1,8 @@
 package uk.ac.sanger.mig.aker.orders.services;
 
+import java.util.Collection;
+import java.util.Optional;
+
 import javax.validation.constraints.NotNull;
 
 import uk.ac.sanger.mig.aker.orders.domain.Order;
@@ -24,4 +27,14 @@ public interface OrderService {
 	 * @return processed order
 	 */
 	Order process(@NotNull Order order);
+
+	/**
+	 * Fetches all orders that belong to a single owner.
+	 *
+	 * @param owner owner string (id)
+	 * @return collection of orders ready to work with
+	 */
+	Collection<Order> findAllByOwner(String owner);
+
+	Optional<Order> findByOwnerAndId(String owner, Long id);
 }
