@@ -32,7 +32,7 @@ public interface OrderService {
 	 * Fetches all orders that belong to a single owner.
 	 *
 	 * @param owner owner string (id)
-	 * @return collection of orders ready to work with
+	 * @return collection of orders ready to work with, <b>empty</b> if not results
 	 */
 	Collection<Order> findAllByOwner(String owner);
 

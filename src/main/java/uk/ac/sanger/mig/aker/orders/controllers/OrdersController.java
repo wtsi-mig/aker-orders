@@ -42,7 +42,7 @@ public class OrdersController {
 	@ResponseBody
 	private Order orders(@PathVariable String owner, @PathVariable Long id) {
 		final Optional<Order> order = orderService.findByOwnerAndId(owner, id);
-		return order.isPresent() ? order.get() : null;
+		return order.get();
 	}
 
 }
