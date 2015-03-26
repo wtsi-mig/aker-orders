@@ -16,6 +16,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author pi1
@@ -103,6 +104,11 @@ public class Order extends BaseEntity {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+
+	@JsonProperty
+	public Long getIdentifier() {
+		return id;
 	}
 
 	@Override

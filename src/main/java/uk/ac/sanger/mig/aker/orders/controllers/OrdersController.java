@@ -1,10 +1,13 @@
 package uk.ac.sanger.mig.aker.orders.controllers;
 
-import java.util.Collection;
 import java.util.Optional;
 
-import javax.annotation.Resource;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.Resources;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,26 +26,39 @@ import uk.ac.sanger.mig.aker.orders.services.OrderService;
 @RequestMapping("/orders")
 public class OrdersController {
 
-	@Resource
+	@Autowired
 	private OrderService orderService;
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
-	private Order create(@ModelAttribute Order orderRequest) {
+	public Order create(@ModelAttribute Order orderRequest) {
 		return orderService.process(orderRequest);
 	}
 
 	@RequestMapping(value = "/by-owner/{owner}", method = RequestMethod.GET)
 	@ResponseBody
-	private Collection<Order> orders(@PathVariable String owner) {
-		return orderService.findAllByOwner(owner);
+	public Resources<Resource<Order>> orders(@PathVariable String owner) {
+		final Resources<Resource<Order>> orders = Resources.wrap(orderService.findAllByOwner(owner));
+
+		for (Resource<Order> order : orders) {
+			final Link show = linkTo(methodOn(OrdersController.class).show(order.getContent().getId(), owner)).withSelfRel();
+			order.add(show);
+		}
+
+		return orders;
+	}
+
+	@RequestMapping(value = "/show/{id}/{owner}")
+	@ResponseBody
+	public Resource<Order> show(@PathVariable("id") Long id, @PathVariable("owner") String owner) {
+		final Order order = orderService.findByOwnerAndId(owner, id).orElse(null);
+		return new Resource<>(order);
 	}
 
 	@RequestMapping(value = "/by-owner/{owner}/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	private Order orders(@PathVariable String owner, @PathVariable Long id) {
+	public Order orders(@PathVariable String owner, @PathVariable Long id) {
 		final Optional<Order> order = orderService.findByOwnerAndId(owner, id);
 		return order.get();
 	}
-
 }
