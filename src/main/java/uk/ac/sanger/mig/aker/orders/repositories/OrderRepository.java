@@ -18,4 +18,5 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 
 	Collection<Order> findByOwner(String owner);
 
+	Order findByIdAndOwner(Long id, String owner);
 }

@@ -54,12 +54,12 @@ public class OrderServiceImpl implements OrderService {
 	public Order process(@NotNull Order orderRequest) {
 		final Date now = Calendar.getInstance().getTime();
 
-		// get project, otherwise cannot save order
+		// save project, otherwise cannot save order
 		final Project project = orderRequest.getProject();
 		project.setCreated(now);
 		final Project savedProject = projectRepository.save(project);
 
-		// get product, otherwise cannot save order
+		// save product, otherwise cannot save order
 		final Product product = orderRequest.getProduct();
 		product.setCreated(now);
 		final Product savedProduct = productRepository.save(product);
@@ -99,9 +99,9 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public Optional<Order> findByOwnerAndId(String owner, Long id) {
-		final Order order = repository.findOne(id);
+		final Order order = repository.findByIdAndOwner(id, owner);
 
-		if (order == null || !order.getOwner().equals(owner)) {
+		if (order == null) {
 			return Optional.empty();
 		}
 
@@ -127,6 +127,7 @@ public class OrderServiceImpl implements OrderService {
 		order.setProduct(product);
 		order.setProject(project);
 		order.setCreated(Calendar.getInstance().getTime());
+
 		return repository.save(order);
 	}
 }
